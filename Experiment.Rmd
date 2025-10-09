@@ -1,0 +1,255 @@
+---
+title: Investigating the factors that affect table salt dissolve time by factorial experiment
+author: "Jiayang Wang"
+date: "April 16, 2021"
+output: pdf_document
+---
+
+
+# Description
+
+Nowadays, people's lifestyle has changed greatly due to COVID-19. Particularly, dietary habits are one of the most affected. More and more people choose to cook for themselves instead of going to restaurants. When cooking, table salt is an essential seasoning which dissolves at different times when it is added to different dishes. In this experiment, I am interested in examining three factors that affect table salt dissolve time, which are temperature, stirring rate, and amount of solvent. We have the main research question "What factors or their interactions may affect table salt dissolve time?" We have the following hypotheses to be tested:
+
+1. $H_0$: temperature has no effect on dissolve time;
+   $H_A$: temperature has effect on dissolve time;
+
+2. $H_0$: stirring rate has no effect on dissolve time;
+   $H_A$: stirring rate has effect on dissolve time;
+
+3. $H_0$: amount of solvent has no effect on dissolve time;
+   $H_A$: amount of solvent has effect on dissolve time.
+
+In order to explore the three factors and their possible interactions, a homemade replicated $2^3$ factorial experiment is conducted. There are three factors, and each factor has two levels as follows:
+
+Table 1. Three factors and their levels for table salt dissolve time
+
+|Factor|Level 1|Level 2|
+-------|-------|--------
+|Temperature|$15^oC$(-1)|$75^oC$(1)|
+|Stirring rate|$60rpm$^[Revolutions per minute, $60rpm$=1cycles per second](-1)|$180rpm$(1)|
+|Amount of solvent|$100ml$(-1)|$300ml$(1)|
+
+There are $2^3=8$ different experimental conditions. The experiment unit is each time I dissolve $10g$ table salt into solvent (water) in different experimental conditions. It takes 8 times to do a factorial experiment, and another 8 times for replication for statistical analysis of variance for each unit; so there are total 16 experimental units. Run order is randomized for each replicate.
+```{r include=FALSE}
+set.seed(1003790935)
+sample(8,replace = FALSE)
+sample(c(9,10,11,12,13,14,15,16),replace = FALSE)
+```
+When carrying out the experiment, in order to control other factors that may potentially affect dissolve time, table salt is added into solvent to control the order of adding solvent or table salt, as well as same cup^[Cup is completely washed and dried so that each trial is independent], same type of table salt and solvent (tap water) is used. The time^[Time is measured in seconds] starts whenever table salt is added into water, and stops when there is no more table salt can be observed in the water. The dissolve time recorded each trial is the response variable $y_i$ for the $i^{th}$ trial, and there are total 16 $y_i$. The data collected are shown below.
+
+\newpage
+
+Table 2. Experimental conditions and data
+```{r include=FALSE}
+data <- data.frame(
+"run" = c(3, 8, 7, 1, 6, 2, 5, 4, 9, 10, 13, 12, 14, 16, 15, 11),
+"temperature" = c(-1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1),
+"stirring_rate" = c(-1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1),
+"water_amount" = c(-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1),
+"time" = c(181.37,182.89,45.02,33.59,117.1,83,15.25,8.96,199.92,175.53,43.83,31.06,110.44,64.84,12.92,9.62)
+)
+```
+
+|Run1|Run2|Temperature|Stirring rate|Amount of water|T1^[Table salt dissolve time for run 1]|T2^[Table salt dissolve time for run 2]|
+-------|-------|--------|----|--|--|---
+|3|9|-1|-1|-1|181.37|199.92|
+|8|10|-1|-1|1|182.89|175.53|
+|7|13|-1|1|-1|45.02|43.83|
+|1|12|-1|1|1|33.59|31.06|
+|6|14|1|-1|-1|117.1|110.44|
+|2|16|1|-1|1|83|64.84|
+|5|15|1|1|-1|15.25|12.92|
+|4|11|1|1|1|8.96|9.62|
+
+\newpage
+
+# Data Analysis
+
+## Model
+
+We firstly build a factorial linear model of the 3 factors and their interaction terms.  
+```{r include=FALSE}
+mod = lm(time~temperature*stirring_rate*water_amount, data)
+summary(mod)
+```
+
+Table 3. Results of the linear model
+
+|Factors|Coefficients|Standard error|P-values|
+---|---|---|---
+|Temperature|-29.442|1.752|1.59e-07|
+|Stirring rate|-57.177|1.752|8.48e-10|
+|Amount of water|-8.523|1.752|0.00125|
+|Temperature:Stirring rate|16.099|1.752|1.59e-05|
+|Temperature:Amount of water|-2.639|1.752|0.17053|
+|Stirring rate:Amount of water|4.299|1.752|0.03974|
+|Temperature:Stirring rate:Amount of water|4.465|1.752|0.03428|
+
+The linear model is as follows:
+
+$\hat{y_i} = 82.209 - 29.442x_{i1} - 57.177x_{i2} - 8.523x_{i3} + 16.099x_{i1}x_{i2} - 2.639x_{i1}x_{i3} + 4.299x_{i2}x_{i3} + 4.465x_{i1}x_{i2}x_{i3}$
+
+Where response variable $\hat{y_i}$ is the estimated table salt dissolve time for the $i^{th}$ trial; 
+$x_{i1}$ is temperature, $x_{i1}=1$ if temperature is $75^oC$ and $x_{i1}=-1$ if temperature is $15^oC$; 
+$x_{i2}$ is stirring rate, $x_{i2}=1$ if stirring rate is $180rpm$ and $x_{i2}=-1$ if stirring rate is $60rpm$; $x_{i3}$ is amount of water, $x_{i3}=1$ if amount of water is $300ml$ and $x_{i3}=-1$ if amount of water is $100ml$; 
+$x_{i1}x_{i2}$ is the interaction term between temperature and stirring rate; 
+$x_{i1}x_{i3}$ is the interaction term between temperature and amount of water; 
+$x_{i2}x_{i3}$ is the interaction term between stirring rate and amount of water; 
+$x_{i1}x_{i2}x_{i3}$ is the interaction term of temperature, stirring rate and amount of water. 
+
+
+
+## Main effects and interaction effects
+
+Main effects and interaction effects are then calculated by 2 times the corresponding coefficients to help interpret the linear model: 
+```{r include=FALSE}
+mod$coefficients*2
+```
+
+Table 4. Main effects and interaction effects
+
+|Variable|Effects estimate|
+-----|-----
+|Temperature|-58.8850|
+|Stirring rate|-114.3550|
+|Amount of water|-17.0450|
+|Temperature:Stirring rate|32.1975|
+|Temperature:Amount of water|-5.2775|
+|Stirring rate:Amount of water|8.5975|
+|Temperature:Stirring rate:Amount of water|8.9300|
+
+We can interpret the main effects that the estimated table salt dissolve time decreases by 58.8850 seconds when temperature changes from $15^oC$ to $75^oC$ with other two factors remain unchanged; similarly, the estimated dissolve time decreases by 114.3550 seconds when stirring rate changes from $60rpm$ to $180rpm$ and other two factors remain unchanged; the estimated dissolve time decreases by 17.0450 seconds when amount of water changes from $100ml$ to $300ml$ and other two factors remain unchanged. We can observe that stirring rate has the largest absolute value of main effect. Note that all three main effects are statistically significant with p-values less than a significance level of 5%.
+
+The interaction effect for pair of factors temperature and stirring rate is 32.1975 seconds, which can be interpreted as the increase for main effect of temperature when stirring rate changes from $60rpm$ to $180rpm$. Similarly, the main effect of temperature decreases by 5.2775 seconds when amount of water changes from $100ml$ to $300ml$. The main effect of stirring rate increases by 8.5975 seconds when amount of water changes from $100ml$ to $300ml$. The interaction effect for pair of factors temperature and stirring rate increased 8.9300 seconds when amount of water changes from $100ml$ to $300ml$. However, when testing whether the estimated parameters are 0, the p-value of pair factors temperature and amount of water is greater than a significance level of 5%, which means the interaction effect of temperature and amount of water is not statistically different from 0.
+
+
+
+## Data visualization
+
+We then create a cube plot to visualize the main effects:
+
+```{r message=FALSE, echo=FALSE}
+library("FrF2")
+cubePlot(mod, 'temperature','stirring_rate','water_amount', main="Cube Plot for table salt dissolve time",round=3,cex.lab=0.85,cex.clab=0.9)
+```
+
+Fig 1. Cube plot for table salt dissolve time, which shows the average dissolve time of two replicates for 8 different combinations of the 3 factors at the corners of cube, and shows 12 comparisons along 12 edges (4 measurements of the effect of each factor change); on each edge only one factor changes from vertex to vertex and other two factors remain unchanged. We can see that the change of stirring rate is the largest, so that it has the greatest effect on dissolve time, corresponding to that stirring rate has the highest absolute value of main effect.
+
+\newpage
+
+When testing whether there exist obvious factor interactions, interaction plots are created:
+
+```{r echo=FALSE}
+interaction.plot(data$temperature, data$stirring_rate, data$time,
+xlab="Temperature", trace.label="Stirring rate", ylab="Dissolve time")
+```
+
+Fig 2. Interaction plot for the pair of factors temperature and stirring rate, which shows the main yield for the interaction. We can see that the two lines are not parallel so that there is a two factor interaction, which is consistent with the result of hypothesis test of estimated parameters in Table 3.
+
+```{r echo=FALSE}
+interaction.plot(data$temperature, data$water_amount, data$time,
+xlab="Temperature", trace.label="Water", ylab="Dissolve time")
+```
+
+Fig 3. Interaction plot for the pair of factors temperature and amount of water. We can see that the two lines are very close to parallel, and we know the interaction term is not statistically different from 0 from the linear model, so that there is no interaction.
+
+
+```{r echo=FALSE}
+interaction.plot(data$stirring_rate, data$water_amount, data$time,
+xlab="Stirring rate", trace.label="Water", ylab="Dissolve time")
+```
+
+Fig 4. Interaction plot for the pair of factors stirring rate and amount of water. We can see that the two lines are not parallel, and we know the interaction effect is statistically significant, so that there is a two factor interaction.
+
+## Hypothesis testing 
+
+We have 3 null hypothesises at first testing whether main effects are significant. Adding 4 interaction terms in the linear model, we have another 4 null hypothesises testing whether interaction effects are significant. Based off the results of hypothesis test of estimated parameters shown in Table 3, we can reject the null hypothesises that temperature, stirring rate, amount of water, temperature:stirring rate, stirring rate:amount of water, and temperature:stirring rate:amount of water are not statistically significant, and fail to reject that temperature:amount of water is not statistically significant.
+
+## Estimated variance
+
+From Table 3, the standard error is the same for all factors and interactions, which is 1.752. So the standard error for all main effects and interactions effects is $1.752*2=3.504$, and the estimated variance for all main effects and interactions effects is $3.504^2=12.278$, which is the difference between averages of two replicates.
+
+We can also calculate the estimated variance of 16 observations by formula $Var(effect) = (1/8 + 1/8)s^2$, where $s^2$ is the pooled sample variance, $s^2=12.278*4=49.112$.
+
+\newpage
+
+## Confidence interval
+
+We then construct a 95% confidence interval for effects.
+```{r include=FALSE}
+round(2 * confint(mod),3)
+```
+
+Table 5. 95% CI for effects
+
+|Factors|2.5%|97.5%|
+---|---|---
+|Temperature|-66.967|-50.803|
+|Stirring rate|-122.437|-106.273|
+|Amount of water|-25.127|-8.963|
+|Temperature:Stirring rate|24.116|40.279|
+|Temperature:Amount of water|-13.359|2.804|
+|Stirring rate:Amount of water|0.516|16.679|
+|Temperature:Stirring rate:Amount of water|0.848|17.012|
+
+We see that the confidence intervals for factors of temperature, stirring rate, amount of water, temperature:stirring rate, stirring rate:amount of water, and temperature:stirring rate:amount of water do not contain 0, meaning these factors are statistically significant, where all three main effects are negatively associate with dissolve time; the confidence interval for the interaction of temperature and amount of water contains 0, meaning this interaction is not effective, which are consistent with linear model, interaction plots and hypothesis tests.
+
+\newpage
+
+# Conclusion
+
+Based off the results, except for the interaction of temperature and amount of water, other factors and interactions have effects on table salt dissolve time. We can conclude that as the temperature, stirring rate, and amount of water increase from level 1 to level 2, table salt dissolve time will decrease, where the change of stirring rate has the greatest effect on dissolve time. With temperature of $75^oC$, stirring rate of $180rpm$, and amount of water of $300ml$, we have the minimum dissolve time, which is the optimal condition. This is not contrary to our common sense. Therefore, we can add table salt into hot large size meals with a fast stir when cooking to save cooking time.
+
+# Limitations and next step
+
+There are some limitations in this homemade replicated factorial experiment. From Table 2, we can observe that some data have a large difference of two replicates in the same experimental condition, for example, the difference of run 3 and 9 is 18.55, and 18.16 for run 2 and 16 under the same setting. This may result from some other factors not being considered but affect dissolve time. Although we consider the order of adding table salt or water, ensure same cup, table salt and solvent used, factors, for example, touch the cup and slightly shake it but are not aware of it, will affect experiment results. Besides, it is difficult to control main factor of stirring rate manually, since it is hard to count how many cycles you stir per second when it comes to high rates, which may affect experiment results. There are some other options of manipulating stirring rate, for example, an electronic egg beater; however, the lowest stirring rate for an egg beater is usually around $5000rpm$ which is way much high, and table salt will dissolve very fast, and hard to record dissolve time; as well as using egg beater to dissolve table salt is not applicable for cooking. Additionally, since the data is limited, there may be some noises, and we may have different results if another independent experiment is conducted.
+
+Thus, some steps can be made to improve the experiment. Firstly, we need to strictly control the factors to ensure the results will not be affected by any other factors we are not interested. i.e. control the order of adding table salt or water, use same cup, table salt and solvent, and ensure no external force affecting the cup. Besides, use an agitator that has both low speed and high speed to control the main factor stirring rate. By making these improvements, we can carry out another more precise, more rigorous experiment.
+
+\newpage
+
+# Appendix
+```{r include=TRUE, eval=FALSE}
+## R code I used
+
+# Randomized run order for each replicate
+set.seed(1003790935)
+sample(8,replace = FALSE)
+sample(c(9,10,11,12,13,14,15,16),replace = FALSE)
+
+# Store data collected into data frame
+data <- data.frame(
+"run" = c(3, 8, 7, 1, 6, 2, 5, 4, 9, 10, 13, 12, 14, 16, 15, 11),
+"temperature" = c(-1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1),
+"stirring_rate" = c(-1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1),
+"water_amount" = c(-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1),
+"time" = c(181.37,182.89,45.02,33.59,117.1,83,15.25,8.96,
+           199.92,175.53,43.83,31.06,110.44,64.84,12.92,9.62)
+)
+
+# Build linear model
+mod = lm(time~temperature*stirring_rate*water_amount, data)
+summary(mod)
+
+# Compute effects 
+mod$coefficients*2
+
+# Create cube plot
+library("FrF2")
+cubePlot(mod, 'temperature','stirring_rate','water_amount', 
+         main="Cube Plot for table salt dissolve time",round=3,cex.lab=0.85,cex.clab=0.9)
+
+# Create interaction plots
+interaction.plot(data$temperature, data$stirring_rate, data$time,
+xlab="Temperature", trace.label="Stirring rate", ylab="Dissolve time")
+interaction.plot(data$temperature, data$water_amount, data$time,
+xlab="Temperature", trace.label="Water", ylab="Dissolve time")
+interaction.plot(data$stirring_rate, data$water_amount, data$time,
+xlab="Stirring rate", trace.label="Water", ylab="Dissolve time")
+
+# Construct 95% CI
+round(2 * confint(mod),3)
+```
+
+
+
