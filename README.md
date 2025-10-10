@@ -13,4 +13,4 @@ This project demonstrates statistical methods for analyzing a factorial experime
 
 <h2>Full Report</h2>
 
-[Report]([https://github.com/austinwjy/time-series-analysis/blob/main/report.pdf](https://github.com/austinwjy/factorial-experiment/blob/main/project.pdf)
+[Report](https://github.com/austinwjy/factorial-experiment/blob/main/project.pdf)
