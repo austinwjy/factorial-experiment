@@ -7,10 +7,10 @@ This project demonstrates statistical methods for analyzing a factorial experime
 - <b>R(Studio)</b>
 - <b>Hypothesis Test</b>
 
-<h2>Raw Code</h2>
+<h2>Project Walk-through</h2>
 
-[R Markdown](https://github.com/austinwjy/factorial-experiment/blob/main/Experiment.Rmd)
+- [R Markdown](https://github.com/austinwjy/factorial-experiment/blob/main/Experiment.Rmd)
 
 <h2>Full Report</h2>
 
-[Report](https://github.com/austinwjy/factorial-experiment/blob/main/project.pdf)
+- [factorial experiment](https://github.com/austinwjy/factorial-experiment/blob/main/project.pdf)
